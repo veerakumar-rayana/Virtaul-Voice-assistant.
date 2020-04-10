@@ -1,0 +1,61 @@
+import speech_recognition as sr
+from time import ctime
+import webbrowser as wb
+import time
+import pyttsx3
+from gtts import gTTS
+import os
+import time
+import playsound 
+import random
+import pyaudio
+
+r=sr.Recognizer()
+
+def record_audio(ask=True):
+	with sr.Microphone() as source:
+		if ask:
+			speak(ask)
+		audio=r.listen(source)
+		voice_data=''
+		try:
+			voice_data=r.recognize_google(audio,language='eng-in')
+		except sr.UnknownValueError:
+			speak("sorry i didn't get that")
+		except sr.RequestError:
+			speak("sorry my services are currently down")
+		return voice_data
+
+def speak(text):
+	tts=gTTS(text=text,lang='en')
+	r=random.randint(1,10000000)
+	filename="voice"+str(r)+".mp3"
+	tts.save(filename)
+	playsound.playsound(filename)
+	speak(text)
+	os.remove(filename)
+
+def respond(voice_data):
+	if 'what is your name' in voice_data:
+		speak('My name is sujatha')
+	if 'what time is it' in voice_data:
+		time=ctime()
+		speak(time)
+		speak(time)
+		
+	if 'search' in voice_data:
+		search=record_audio('what do you wanna search for')
+		url='https://google.com/search?q=' + search
+		wb.get().open(url)
+		speak('Here is what i found for'+search)
+		
+	if 'find location' in voice_data:
+
+		location=record_audio('which location you wanna find for')
+		url='https://google.nl/maps/place/' + location + '/&amp;'
+		wb.get().open(url)
+        
+
+speak('How can i help you')
+voice_data=record_audio()
+respond(voice_data)
